@@ -3,14 +3,17 @@ import PropTypes from "prop-types";
 import { StickyTable, Row, Cell } from "react-sticky-table";
 import moment from "moment";
 import $ from "jquery";
+import Draggable from "react-draggable";
 
 const RoomScheduler = ({ title = "Hello" }) => {
   const [rooms, setRooms] = useState([]);
   const [startDate, setStartDate] = useState(moment().add(-1, "M"));
   const [endDate, setEndDate] = useState(moment().add(1, "M"));
   const [daysArray, setDaysArray] = useState([]);
+  const [cellSize, setCellSize] = useState({ h: 0, w: 0 });
   const scrollElement = useRef();
   const firstCell = useRef();
+  const [reload, setReload] = useState(new Date());
 
   const arrayOfDays = (startDate, endDate) => {
     var datesArray = [];
@@ -28,23 +31,36 @@ const RoomScheduler = ({ title = "Hello" }) => {
   }, []);
 
   useEffect(() => {
-    // firstRow.current = $(".sticky-table-row:first()").attr("tag", "tag");
+    //   // firstRow.current = $(".sticky-table-row:first()").attr("tag", "tag");
     firstCell.current = $(".sticky-table-cell:first()")[0];
+    const he = $(firstCell.current).outerHeight(true);
+    const wi = $(firstCell.current).outerWidth(true);
 
-    // console.log($(firstRow.current).outerHeight())
-    console.log($(firstCell.current).outerWidth());
-    console.log($(firstCell.current).outerHeight());
-    
-    var div = document.createElement('div');
-    div.style.backgroundColor = 'red';
-    div.style.position = 'absolute';
-    div.style.top = $(firstCell.current).outerHeight() + 'px';
-    div.style.left = $(firstCell.current).outerWidth()  + 'px';
-    div.style.height = $(firstCell.current).outerHeight() + 'px';
-    div.style.width = '150px';
+    setCellSize({ h: he, w: wi });
+    //   // console.log($(firstRow.current).outerHeight())
+    //   console.log($(firstCell.current).outerWidth());
+    //   console.log($(firstCell.current).outerHeight());
 
-    debugger
-    document.getElementsByClassName('sticky-table')[0].appendChild(div);
+    //   var div = document.createElement("div");
+    //   div.style.backgroundColor = "red";
+    //   div.style.position = "absolute";
+    //   div.style.top = $(firstCell.current).outerHeight() + "px";
+    //   div.style.left = $(firstCell.current).outerWidth() + "px";
+    //   div.style.height = $(firstCell.current).outerHeight() + "px";
+    //   div.style.width = "150px";
+    //   div.className = "reservation";
+
+    //   debugger;
+    //   document.getElementsByClassName("sticky-table")[0].appendChild(div);
+  }, [cellSize]);
+
+  $(document).ready(() => {
+    firstCell.current = $(".sticky-table-cell:first()")[0];
+    const he = $(firstCell.current).outerHeight(true);
+    const wi = $(firstCell.current).outerWidth(true);
+
+    setCellSize({ h: he, w: wi });
+    setReload(new Date());
   });
 
   return (
@@ -60,6 +76,18 @@ const RoomScheduler = ({ title = "Hello" }) => {
             {daysArray.map((d) => {
               return <Cell>{d.format("DD/MM")}</Cell>;
             })}
+            <Draggable axis="x" grid={[cellSize.w, cellSize.h]}>
+              <div
+                style={{
+                  backgroundColor: "red",
+                  position: "absolute",
+                  top: cellSize.h,
+                  left: cellSize.w,
+                  width: 150,
+                  height: cellSize.h,
+                }}
+              ></div>
+            </Draggable>
           </Row>
           {rooms.map((room) => {
             return (
